@@ -21,6 +21,11 @@ if [ $? -ne 0 ] || [-z "$data" ]; then
     exit 1
 fi
 
+# Vérifier si les données récupérées contiennent une erreur  
+if [[ "$data" == *"404"* ]] || [[ "$data" == *"not found"* ]]; then
+    echo "Erreur : Impossible de récupérer les données météo pour '$ville'. Ville introuvable."
+    echo 1
+
 # Etape 2 : Extraire la température actuelle
 temperature_actuelle=$(echo "$data" |  awk '{print $2}')
 condition=$(echo "$data" | awk '{print $1}')
@@ -34,4 +39,4 @@ echo "$(date '+%Y-%m-%d %H:%M') -$ville : $temperature_actuelle - $prevision" >>
 
 # Affichage d'un message de confirmation 
 echo "Données météo enregistrées dans meteo.txt :"
-cat meteo.txt
+
