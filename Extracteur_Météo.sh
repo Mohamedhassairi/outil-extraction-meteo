@@ -16,7 +16,7 @@ echo "Données brutes : $data"
 
 
 # Vérifier si la récupération a reussi
-if [ $? -ne 0 ] || [-z "$data" ]; then
+if [ $? -ne 0 ] || [ -z "$data" ]; then
     echo "Erreur lors de la récupération des données météo."
     exit 1
 fi
