@@ -1,28 +1,37 @@
 #!/bin/bash
 
-# Vérifier si un argument de ville est passé , sinon utiliser Toulouse comme ville par défault
-CITY=${1:-"Toulouse"}
-
-
-#Récupérer les données météo brutes 
-METEO_DATA=$(curl -s "wttr.in/$CITY?format=3) || {
-    echo "$(date '+%Y-%m-%d %H:%M') - Erreur de connexion à wttr.in" >> meteo_error.log
-    exit 1
-}
-
-# Extraire la température actuelle et les prévisions 
-TEMP=$(echo "$METEO_DATA" | awk '{print $2}') # Température actuelle
-FORECAST=$(curl -s "wttr.in/$CITY?format=%f" # Prévisions pour le lendemain
-
-# Vérifier si la récupération de la prévision a échoué
-if [ -z "$FORECAST" ]; then
-    echo "$(date '+%Y-%m-%d %H:%M') - Erreur de récupération de la prévision " >> meteo_error.log
+# Vérifier si un argument de ville est passé 
+if [ -z "$1" ]; then
+    echo "Veuillez fournir une ville en argument ."
     exit 1
 fi
 
-# Obtenir la date et l'heure actuelles 
-CURRENT_DATE=$(date '+%Y-%m-%d')
-CURRENT_TIME=$(date '+%H:%M')
+ville=$1
 
-# Enregistrer les informations dans un fichier meteo.txt
-echo "$CURRENT_DATE - $CURRENT_TIME - $CITY : $TEMP - $FORECAST" >> meteo.txt
+# Etape 1: Utiliser curl pour récupérer les données méteo
+# Récupération des données brutes  depuis wttr.in
+
+data=$(curl -s "wttr.in/$ville?format=%C+%t") # %C pour météo et %t pour température
+echo "Données brutes : $data"
+
+
+# Vérifier si la récupération a reussi
+if [ $? -ne 0 ] || [-z "$data" ]; then
+    echo "Erreur lors de la récupération des données météo."
+    exit 1
+fi
+
+# Etape 2 : Extraire la température actuelle
+temperature_actuelle=$(echo "$data" |  awk '{print $2}')
+condition=$(echo "$data" | awk '{print $1}')
+
+# Etape 3 : Formater les informations 
+# Pour obtenir la provision , nous ferons une autre requete
+prevision=$(curl -s "wttr.in/$ville?format=%t")
+
+# Etape 4 : Enregistrer  les informations dans le fichier meteo.txt
+echo "$(date '+%Y-%m-%d %H:%M') -$ville : $temperature_actuelle - $prevision" >> meteo.txt
+
+# Affichage d'un message de confirmation 
+echo "Données météo enregistrées dans meteo.txt :"
+cat meteo.txt
