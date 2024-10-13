@@ -21,13 +21,14 @@ if [ $? -ne 0 ]; then
 fi
 
 # Vérifier si les données récupérées contiennent une erreur  
-if [[ "$data" == *"404"* ]] || [[ "$data" == *"not found"* ]] || [[ -z "$data" ]]; then
+if [[ -z "$data" ]] || [[ "$data" == *"Unknown location"* ]]; then
     echo "Erreur : Impossible de récupérer les données météo pour '$ville'. Ville introuvable."
     exit 1
 fi
 # Etape 2 : Extraire la température actuelle
-temperature_actuelle=$(echo "$data" |  awk '{print $2}')
+temperature_actuelle=$(echo "$data" | awk '{print $2}')
 condition=$(echo "$data" | awk '{print $1}')
+
 
 # Etape 3 : Formater les informations 
 # Pour obtenir la provision , nous ferons une autre requete
