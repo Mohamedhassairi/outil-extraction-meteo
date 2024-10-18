@@ -2,48 +2,40 @@
 
 # Vérifier si un argument de ville est passé 
 if [ -z "$1" ]; then
-    echo "Veuillez fournir une ville en argument ."
+    echo "Erreur veuillez fournir une ville en argument ."
     exit 1
 fi
 
-ville=$1
-
-# Etape 1: Utiliser curl pour récupérer les données méteo
+VILLE="$1"
+FICHIER_METEO="meteo.txt"
+DATE=$(date +"%Y-%m-%d - %H:%M"
+# Utiliser curl pour récupérer les données méteo
 # Récupération des données brutes  depuis wttr.in
 
-data=$(curl -s "wttr.in/$ville?format=%C+%t") # %C pour météo et %t pour température
+METEO=$(curl -s "wttr.in/$ville?format=%C+%t+%f") # %C pour météo et %t pour température
 
 
-# Vérifier si la récupération a reussi
-if [ $? -ne 0 ]; then
-    echo "Erreur lors de la récupération des données météo."
+# Vérifier si la ville existe dans wttr.in
+if [[ "$METEO" == *"Unknown location"* ]]; then
+    echo "Erreur : La ville '$VILLE' est inconnue. Veuillez entrer une ville."
     exit 1
 fi
 
-# Vérifier si les données récupérées contiennent une erreur  
-if [[ -z "$data" ]] || [[ "$data" == *"Unknown location"* ]]; then
-    echo "Erreur : Impossible de récupérer les données météo pour '$ville'. Ville introuvable."
-    exit 1
-fi
-# Etape 2 : Extraire la température actuelle
-temperature_actuelle=$(echo "$data" | awk '{print $2}')
-condition=$(echo "$data" | awk '{print $1}')
+# Extraire les informations de température actuelle et prévision pour le lendemain
+TEMP_ACTUELLE=$(echo "$METEO" | awk '{print $2}')
+PREVISION_LENDEMAIN=$(echo "$METEO" | awk '{print $3}')
 
 
-# Etape 3 : Formater les informations 
-# Pour obtenir la provision , nous ferons une autre requete
-prevision=$(curl -s "wttr.in/$ville?format=%t")
-
-# Vérifier si la prévision est vide 
-if [[ -z "$prevision" ]]; then
-    echo "Erreur : Impossible de récupérer la prévision météo pour '$ville'."
+# Vérifier que les données sont correctes
+if [ -z "$TEMP_ACTUELLE" ] || [ -z "$PREVISION_LENDEMAIN" ]; then
+    echo "Erreur : Impossible de récupérer la prévision météo pour '$VILLE'."
     exit 1
 fi
 
 
-# Etape 4 : Enregistrer  les informations dans le fichier meteo.txt
-echo "$(date '+%Y-%m-%d- %H:%M') - $ville : $temperature_actuelle - $prevision" >> meteo.txt
+# Enregistrer  les informations dans le fichier meteo.txt
+echo "$DATE - $VILLE : $TEMP_ACTUELLE - $PREVISION_LENDEMAIN" >> $FICHIER_METEO
 
 # Affichage d'un message de confirmation 
-echo "Données météo enregistrées dans meteo.txt. allez-y dans le fichier pour les voir ."
+echo "Données météo pour $VILLE enregistrées dans meteo.txt. allez-y dans le fichier pour les voir ."
 
