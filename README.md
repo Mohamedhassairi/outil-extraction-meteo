@@ -26,7 +26,7 @@ ra les informations extraites dans un fichier texte , chaque enregistrement deva
 par exemple :
 ```bash
 ./Extracteur_Météo.sh Toulouse 
-
+```
 # Comment configurer cron
 - Ouvrir le crontab avec la commande :
 crontab -e 
