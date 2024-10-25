@@ -29,10 +29,11 @@ par exemple :
 
 # Comment configurer cron
 - Ouvrir le crontab avec la commande :
-```bash
 crontab -e 
-```
+
+### Versions 2
 - Ajouter une ligne pour exécuter le script toutes les heures :
-```bash
-0**** /chemin/vers/mon/script/Extracteur_Météo.sh
- 
+- Definir une ville par defaut. J'ai mis la ville de Toulouse comme ville par défaut.
+- Recuperer les donnees meteo actuelles : J'ai utilise curl pour obtenir la condition meteo et a la temperature de la ville et stocke ces donnees dans une variable data.
+- Extraire et verifier les informations : j'ai utilise awk pour isoler la temperature actuelle et la condition météo
+- J'ai enregistrer les informations
